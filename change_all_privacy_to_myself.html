@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Change all privacy to myself</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+</head>
+
+<body>
+
+    <br>
+    <br>
+
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Change all privacy to myself</h3>
+            </div>
+            <div class="panel-body">
+                <b>* Access Token: </b>
+                <input type="text" id="access_token" class="form-control" placeholder="Paste access token here...">
+                <br>
+                <b>* Result: (<span id="success_post" class="text-success">0</span>/<span id="error_post" class="text-warning">0</span>/<span id="num_post" class="text-primary">0</span>)</b>
+
+                <textarea class="form-control" rows="5" placeholder="Result" disabled id="result"></textarea>
+                <br>
+                <center>
+                    <button class="btn btn-primary" id="run">Start</button>
+                    <hr>
+
+                    <small>Code by <i class="fa fa-heart" aria-hidden="true" style="color: #f4424e;"></i> Jickme.</small>
+                </center>
+            </div>
+
+        </div>
+    </div>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script>
+        function set_privacy_to_myself(access_token, post_id) {
+
+            $.getJSON('https://graph.facebook.com/' + post_id + '?method=post&privacy[value]=SELF&access_token=' + access_token + '', function(data) {
+
+                $('#success_post').html(parseInt($('#success_post').html()) + 1);
+                $('#result').append(post_id + '\n');
+            }).fail(function() {
+                $('#error_post').html(parseInt($('#error_post').html()) + 1);
+            });
+
+            return true;
+        }
+        $('#run').click(function() {
+            var access_token = $('#access_token').val();
+            //Get post_id
+            $.getJSON('https://graph.facebook.com/fql?q=SELECT%20post_id%20FROM%20stream%20WHERE%20source_id%20=%20me()&method=GET&access_token=' + access_token + '', function(data) {
+                var a = data['data'];
+                //console.log(a);
+                $('#run').prop('disabled', true).html('Changing...');
+                $('#num_post').html(a.length);
+                $.each(a, function(key, post_id) {
+                    setTimeout(function() {
+                        set_privacy_to_myself(access_token, post_id['post_id']);
+
+                    }, 5000);
+                });
+
+            }).fail(function() {
+                alert('access_token died');
+            });
+
+        });
+    </script>
+</body>
+
+</html>
