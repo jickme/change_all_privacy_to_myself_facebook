@@ -1,1 +1,0 @@
-# change_all_privacy_to_myself_facebook
